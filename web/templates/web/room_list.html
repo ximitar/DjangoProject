@@ -1,0 +1,39 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h2>Room List</h2>
+
+    <form action="">
+        {%for field in room_filter_form%}
+            {{field}}
+        {%endfor%}
+        <button>Найти</button>
+    </form>
+    
+    <ul>
+        {% for room in rooms %}
+            <li>
+                <a href="{% url 'room_detail' room_id=room.id %}">{{ room.room_name }}</a>
+                <form method="post" action="{% url 'join_room_from_list' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="room_id" value="{{ room.id }}">
+                    <label for="password">Enter Room Password:</label>
+                    <input type="password" name="password" required>
+                    <button type="submit">Join Room</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <nav>
+        {%if rooms.has_previous%}
+        <a href="?page=1">В начало</a>
+        <a href="?page={{rooms.previous_page_number}}">Предыдущая страница</a>
+        {% endif %}
+        {%if rooms.has_next%}
+        <a href="?page={{rooms.next_page_number}}">Следующая страница</a>
+        <a href="?page={{rooms.paginator.num_pages}}">В конец</a>
+        {% endif %}
+    </nav>
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h2>{{ room.name }} Lobby</h2>
+
+    <p>Participants:</p>
+    <ul>
+        {% for participant in participants %}
+            <li>{{ participant.username }}</li>
+        {% endfor %}
+    </ul>
+
+    
+    <h3>Chat</h3>
+    <div id="chat-messages"></div>
+
+    <form id="chat-form">
+        <input type="text" id="chat-input" autocomplete="off" />
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/room_det/' + {{ room.id }} + '/'
+        );
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            const message = data.message;
+            document.querySelector('#chat-messages').innerHTML += '<p>' + message + '</p>';
+        };
+
+        document.querySelector('#chat-form').onsubmit = function (e) {
+            e.preventDefault();
+            const messageInputDom = document.querySelector('#chat-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+{% endblock %}
